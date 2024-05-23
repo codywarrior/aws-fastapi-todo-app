@@ -113,6 +113,7 @@ class BackendStack(Stack):
             self,
             "Lambda-Todos",
             runtime=aws_lambda.Runtime.PYTHON_3_11,
+            function_name=f"{self.main_resources_name}-{self.deployment_environment}",
             handler="todo_app/api/v1/main.handler",
             code=aws_lambda.Code.from_asset(PATH_TO_LAMBDA_FUNCTION_FOLDER),
             timeout=Duration.seconds(20),
@@ -137,6 +138,20 @@ class BackendStack(Stack):
         """
 
         rest_api_name = self.app_config["api_gw_name"]
+
+        # TODO: enhance with dedicated construct helper/methods
+        if self.app_config["auth"] == "api_key":
+            api_method_options = aws_apigw.MethodOptions(
+                api_key_required=True,
+            )
+        elif self.app_config["auth"] == "cognito":
+            api_method_options = aws_apigw.MethodOptions(
+                api_key_required=False,
+                # TODO: add cognito user pool authorizer and configurations
+            )
+        else:
+            raise ValueError("Invalid value for 'auth' in the app_config")
+
         self.api = aws_apigw.LambdaRestApi(
             self,
             "RESTAPI",
@@ -149,32 +164,31 @@ class BackendStack(Stack):
                 metrics_enabled=True,
             ),
             endpoint_types=[aws_apigw.EndpointType.REGIONAL],
-            default_method_options=aws_apigw.MethodOptions(
-                api_key_required=True,
-            ),
+            default_method_options=api_method_options,
             cloud_watch_role=False,
             proxy=False,  # Proxy disabled to have more control
         )
 
-        # API Key (used for authentication via "x-api-key" header in request)
-        rest_api_key = self.api.add_api_key(
-            "RESTAPI-Key",
-            api_key_name=f"{rest_api_name}-key",
-        )
-        Tags.of(self.api).add("Name", rest_api_name)
+        if self.app_config["auth"] == "api_key":
+            # API Key (used for authentication via "x-api-key" header in request)
+            rest_api_key = self.api.add_api_key(
+                "RESTAPI-Key",
+                api_key_name=rest_api_name,
+            )
+            Tags.of(self.api).add("Name", rest_api_name)
 
-        # API Usage Plan (to associate the API Key with the API Stage)
-        usage_plan = self.api.add_usage_plan(
-            "RESTAPI-UsagePlan",
-            name=f"{rest_api_name}-usage-plan",
-            api_stages=[
-                aws_apigw.UsagePlanPerApiStage(
-                    api=self.api, stage=self.api.deployment_stage
-                )
-            ],
-            description=f"Usage plan for {self.main_resources_name} API to enable API Key usage",
-        )
-        usage_plan.add_api_key(rest_api_key)
+            # API Usage Plan (to associate the API Key with the API Stage)
+            usage_plan = self.api.add_usage_plan(
+                "RESTAPI-UsagePlan",
+                name=rest_api_name,
+                api_stages=[
+                    aws_apigw.UsagePlanPerApiStage(
+                        api=self.api, stage=self.api.deployment_stage
+                    )
+                ],
+                description=f"Usage plan for {self.main_resources_name} API to enable API Key usage",
+            )
+            usage_plan.add_api_key(rest_api_key)
 
     def configure_rest_api_advanced(self):
         """

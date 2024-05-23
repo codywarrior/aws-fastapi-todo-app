@@ -83,7 +83,7 @@ async def create_todo_item(
 
         # After schema validation, it's safe to load the TODO element
         todos = Todos(user_email=user_email, logger=logger)
-        result = todos.create_todo_item(todo_details)
+        result = todos.create_todo(todo_details)
 
         logger.info("Finished create_todo_item() successfully")
         return result

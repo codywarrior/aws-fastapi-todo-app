@@ -11,8 +11,16 @@
       "dev": {
         "deployment_environment": "dev",
         "log_level": "DEBUG",
-        "table_name": "todo-app-table",
-        "api_gw_name": "todo-apigw"
+        "table_name": "todo-app-table-dev",
+        "api_gw_name": "todo-apigw-dev",
+        "auth": "api_key"
+      },
+      "prod": {
+        "deployment_environment": "prod",
+        "log_level": "INFO",
+        "table_name": "todo-app-table-prod",
+        "api_gw_name": "todo-apigw-prod",
+        "auth": "cognito"
       }
     }
   }
