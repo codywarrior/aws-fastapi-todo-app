@@ -1,5 +1,6 @@
 # Built-in imports
 import os
+from typing import Optional
 
 # External imports
 from aws_cdk import (
@@ -7,6 +8,7 @@ from aws_cdk import (
     RemovalPolicy,
     Tags,
     Duration,
+    aws_cognito,
     aws_dynamodb,
     aws_lambda,
     aws_apigateway as aws_apigw,
@@ -26,6 +28,7 @@ class BackendStack(Stack):
         construct_id: str,
         main_resources_name: str,
         app_config: dict[str],
+        cognito_user_pool: Optional[aws_cognito.UserPool] = None,
         **kwargs,
     ) -> None:
         """
@@ -40,6 +43,7 @@ class BackendStack(Stack):
         self.construct_id = construct_id
         self.main_resources_name = main_resources_name
         self.app_config = app_config
+        self.cognito_user_pool = cognito_user_pool
         self.deployment_environment = self.app_config["deployment_environment"]
 
         # Main methods for the deployment
@@ -136,21 +140,34 @@ class BackendStack(Stack):
         Method to create the REST-API Gateway for exposing the "TODOs"
         functionalities.
         """
-
         rest_api_name = self.app_config["api_gw_name"]
 
         # TODO: enhance with dedicated construct helper/methods
-        if self.app_config["auth"] == "api_key":
-            api_method_options = aws_apigw.MethodOptions(
-                api_key_required=True,
+        cognito_authorizer = None
+        if self.app_config["auth"] == "cognito":
+            cognito_authorizer = aws_apigw.CognitoUserPoolsAuthorizer(
+                self,
+                "RESTAPI-CognitoAuthorizer",
+                authorizer_name=f"{rest_api_name}-authorizer",
+                cognito_user_pools=[self.cognito_user_pool],
+                identity_source=aws_apigw.IdentitySource.header("Authorization"),
+                results_cache_ttl=Duration.minutes(0),
             )
-        elif self.app_config["auth"] == "cognito":
-            api_method_options = aws_apigw.MethodOptions(
-                api_key_required=False,
-                # TODO: add cognito user pool authorizer and configurations
-            )
-        else:
-            raise ValueError("Invalid value for 'auth' in the app_config")
+
+        self.api_method_options_public = aws_apigw.MethodOptions(
+            api_key_required=False,
+            authorization_type=aws_apigw.AuthorizationType.NONE,
+            authorizer=None,
+        )
+        self.api_method_options_private = aws_apigw.MethodOptions(
+            api_key_required=True if self.app_config["auth"] == "api_key" else False,
+            authorization_type=(
+                aws_apigw.AuthorizationType.COGNITO
+                if self.app_config["auth"] == "cognito"
+                else aws_apigw.AuthorizationType.NONE
+            ),
+            authorizer=cognito_authorizer,  # Only if Cognito is enabled
+        )
 
         self.api = aws_apigw.LambdaRestApi(
             self,
@@ -160,11 +177,10 @@ class BackendStack(Stack):
             handler=self.lambda_todo_app,
             deploy_options=aws_apigw.StageOptions(
                 stage_name=self.deployment_environment,
-                description=f"REST API for {self.main_resources_name}",
+                description=f"REST API for {self.main_resources_name} in {self.deployment_environment} environment",
                 metrics_enabled=True,
             ),
             endpoint_types=[aws_apigw.EndpointType.REGIONAL],
-            default_method_options=api_method_options,
             cloud_watch_role=False,
             proxy=False,  # Proxy disabled to have more control
         )
@@ -202,15 +218,15 @@ class BackendStack(Stack):
         # Endpoints for automatic Swagger docs (no auth required)
         root_resource_docs: aws_apigw.Resource = root_resource_v1.add_resource(
             "docs",
-            default_method_options=aws_apigw.MethodOptions(api_key_required=False),
+            default_method_options=self.api_method_options_public,
         )
-        root_resource_docs_proxy = root_resource_docs.add_resource(
-            "{path}",
-            default_method_options=aws_apigw.MethodOptions(api_key_required=False),
-        )
+        root_resource_docs_proxy = root_resource_docs.add_resource("{path}")
 
         # Endpoints for "todos"resources
-        root_resource_todos = root_resource_v1.add_resource("todos")
+        root_resource_todos = root_resource_v1.add_resource(
+            "todos",
+            default_method_options=self.api_method_options_private,
+        )
         todos_resource = root_resource_todos.add_resource("{todo_id}")
 
         # Define all API-Lambda integrations for the API methods
@@ -241,9 +257,12 @@ class BackendStack(Stack):
         # Endpoints ("docs" without auth and "todos" with auth)
         root_resource_docs: aws_apigw.Resource = root_resource_v1.add_resource(
             "docs",
-            default_method_options=aws_apigw.MethodOptions(api_key_required=False),
+            default_method_options=self.api_method_options_public,
         )
-        root_resource_todos = root_resource_v1.add_resource("todos")
+        root_resource_todos = root_resource_v1.add_resource(
+            "todos",
+            default_method_options=self.api_method_options_private,
+        )
 
         # Define all API-Lambda integrations for the API methods
         api_lambda_integration_todos = aws_apigw.LambdaIntegration(self.lambda_todo_app)
@@ -261,4 +280,5 @@ class BackendStack(Stack):
         root_resource_todos.add_proxy(
             any_method=True,  # To don't explicitly adding methods on the `proxy` resource
             default_integration=api_lambda_integration_todos,
+            # default_method_options=self.api_method_options_private,
         )
