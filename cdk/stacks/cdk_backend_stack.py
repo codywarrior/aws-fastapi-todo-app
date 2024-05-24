@@ -274,7 +274,7 @@ class BackendStack(Stack):
             self.app_client = self.cognito_user_pool.add_client(
                 "Cognito-AppClient",
                 user_pool_client_name=f"{self.main_resources_name}-app-client-{self.deployment_environment}",
-                auth_flows=aws_cognito.AuthFlow(user_password=True),
+                auth_flows=aws_cognito.AuthFlow(user_password=True, user_srp=True),
                 o_auth=aws_cognito.OAuthSettings(
                     flows=aws_cognito.OAuthFlows(
                         implicit_code_grant=True,  # Return tokens directly
