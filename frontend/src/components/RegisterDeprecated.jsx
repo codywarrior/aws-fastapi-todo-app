@@ -1,16 +1,21 @@
-import { Button, TextField } from "@mui/material";
 import { useState } from "react";
+import { Button, TextField, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { CognitoUserAttribute } from "amazon-cognito-identity-js";
+import "../styles/Login.css";
 
 import userpool from "./userpool";
 
+// DEPRECATED, NOW LEVERAGING COGNITO HOSTED UI TO REGISTER
+
 const Register = () => {
-  const Navigate = useNavigate();
+  const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [emailErr, setEmailErr] = useState("");
+  const [nameErr, setNameErr] = useState("");
   const [passwordErr, setPasswordErr] = useState("");
 
   const formInputChange = (formField, value) => {
@@ -20,28 +25,31 @@ const Register = () => {
     if (formField === "password") {
       setPassword(value);
     }
+    if (formField === "name") {
+      setName(value);
+    }
   };
 
   const validation = () => {
     return new Promise((resolve, reject) => {
-      if (email === "" && password === "") {
+      if (email === "") {
         setEmailErr("Email is Required");
-        setPasswordErr("Password is required");
         resolve({
           email: "Email is Required",
-          password: "Password is required",
+          name: "",
+          password: "",
         });
-      } else if (email === "") {
-        setEmailErr("Email is Required");
-        resolve({ email: "Email is Required", password: "" });
+      } else if (name === "") {
+        setNameErr("Name is required");
+        resolve({ name: "Name is Required", email: "", password: "" });
       } else if (password === "") {
         setPasswordErr("Password is required");
         resolve({ email: "", password: "Password is required" });
       } else if (password.length < 6) {
         setPasswordErr("must be 6 character");
-        resolve({ email: "", password: "must be 6 character" });
+        resolve({ email: "", name: "", password: "must be 6 character" });
       } else {
-        resolve({ email: "", password: "" });
+        resolve({ email: "", name: "", password: "" });
       }
       reject("");
     });
@@ -61,6 +69,12 @@ const Register = () => {
                 Value: email,
               })
             );
+            attributeList.push(
+              new CognitoUserAttribute({
+                Name: "name",
+                Value: name,
+              })
+            );
             let username = email;
             userpool.signUp(
               username,
@@ -70,30 +84,48 @@ const Register = () => {
               (err, data) => {
                 if (err) {
                   console.log(err);
-                  alert("Couldn't sign up");
+                  alert(`Couldn't sign up: ${err.message}`);
                 } else {
                   console.log(data);
                   alert("User Added Successfully");
-                  Navigate("/dashboard");
+                  navigate("/dashboard");
                 }
               }
             );
           }
         },
-        (err) => console.log(err)
+        (err) => {
+          console.log(err);
+          alert(`Couldn't sign up: ${err.message}`);
+        }
       )
       .catch((err) => console.log(err));
   };
 
+  const goToHome = () => {
+    navigate(`/home`);
+  };
+
   return (
     <div className="register">
+      <Typography variant="h3">Login TODOs app</Typography>
+
       <div className="form">
+        {/* <form className="form"> */}
         <div className="formfield">
           <TextField
             value={email}
             onChange={(e) => formInputChange("email", e.target.value)}
             label="Email"
             helperText={emailErr}
+          />
+        </div>
+        <div className="formfield">
+          <TextField
+            value={name}
+            onChange={(e) => formInputChange("name", e.target.value)}
+            label="Name"
+            helperText={nameErr}
           />
         </div>
         <div className="formfield">
@@ -107,11 +139,20 @@ const Register = () => {
             helperText={passwordErr}
           />
         </div>
-        <div className="formfield">
+        <div className="formfield d-flex justify-content-around">
           <Button type="submit" variant="contained" onClick={handleClick}>
             Register
           </Button>
+          <Button
+            type="submit"
+            variant="contained"
+            onClick={goToHome}
+            className="btn"
+          >
+            Return
+          </Button>
         </div>
+        {/* </form> */}
       </div>
     </div>
   );

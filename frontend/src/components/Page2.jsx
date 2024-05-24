@@ -1,50 +1,6 @@
-import { PageChanger } from "./PageChanger";
-import { useEffect, useState } from "react";
-import userpool from "./userpool";
-import { useNavigate } from "react-router-dom";
-import { Box, Typography } from "@mui/material";
-import * as jose from "jose";
-
 function Page2() {
-  const navigate = useNavigate();
-  const [userEmail, setUserEmail] = useState("");
-
-  useEffect(() => {
-    let user = userpool.getCurrentUser();
-    console.log(`user is: ${JSON.stringify(user)}`);
-
-    if (!user) {
-      navigate(`/login`);
-    }
-    // Get user details to populate page
-    const clientId = user?.pool?.clientId;
-    const username = user?.username;
-    console.debug(`username is: ${username}, clientId is: ${clientId}`);
-
-    const idTokenKey = `CognitoIdentityServiceProvider.${clientId}.${username}.idToken`;
-    const idToken = user?.storage[idTokenKey];
-    const decodedToken = jose.decodeJwt(idToken);
-    let userName = user?.username;
-    let userEmail = decodedToken.email;
-    let userFullName = decodedToken.name;
-    console.debug(`decodedToken is: ${JSON.stringify(decodedToken)}`);
-    console.log(
-      `userName is: ${userName}, userEmail is: ${userEmail}, userFullName is: ${userFullName}`
-    );
-    setUserEmail(userEmail);
-  }, []);
-
   return (
     <>
-      <Box
-        display="flex"
-        justifyContent="flex-end"
-        paddingRight="10px"
-        paddingTop="10px"
-      >
-        <Typography variant="h6">Hi: {userEmail}</Typography>{" "}
-        {/* Display the user's email */}
-      </Box>
       <div className="container text-center">
         <h1>
           My Awesome <span className="badge text-bg-success">TODO</span> App
@@ -95,7 +51,6 @@ function Page2() {
         <br></br>
         <br></br>
       </div>
-      <PageChanger currentPage="2" />
     </>
   );
 }

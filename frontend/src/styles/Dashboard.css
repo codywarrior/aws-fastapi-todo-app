@@ -18,5 +18,10 @@
 }
 
 .card {
-  padding: 3em;
+  margin: 1em;
+  padding: 1em;
+  border-radius: 8px;
+  background-color: #1a1a1a;
+  box-shadow: 0 0 0.5em 0.3em #000000aa;
+  transition: transform 300ms;
 }

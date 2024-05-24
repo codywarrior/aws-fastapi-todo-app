@@ -12,10 +12,13 @@
 }
 
 .form {
-  margin: 50px;
+  margin: 20px;
   align-items: center;
   justify-content: center;
   color: white;
+  background-color: rgb(123, 125, 137);
+  padding: 20px;
+  border-radius: 20px;
 }
 
 .formfield {

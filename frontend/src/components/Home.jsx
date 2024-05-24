@@ -6,19 +6,21 @@ import userpool from "./userpool";
 
 const Home = () => {
   const navigate = useNavigate();
+  const COGNITO_HOSTED_UI_ENDPOINT = import.meta.env
+    .VITE_COGNITO_HOSTED_UI_ENDPOINT;
 
   useEffect(() => {
     let user = userpool.getCurrentUser();
     console.log(`user is: ${JSON.stringify(user)}`);
 
     if (user) {
-      navigate(`/page1`);
+      navigate(`/dashboard`);
     }
   }, []);
 
   return (
     <div className="home">
-      <Typography variant="h3">Welcome to your TODOs app</Typography>
+      <Typography variant="h3">Welcome to your TODOs</Typography>
       <Typography variant="h5">Please login or register to continue</Typography>
       <img
         src={appLogo1}
@@ -34,17 +36,19 @@ const Home = () => {
         <Button
           style={{ margin: "10px" }}
           variant="contained"
-          onClick={() => Navigate("/login")}
+          onClick={() => navigate("/login")}
         >
           Login
         </Button>
-        <Button
-          style={{ margin: "10px" }}
-          variant="contained"
-          onClick={() => Navigate("/register")}
-        >
-          Register
-        </Button>
+        <a href={COGNITO_HOSTED_UI_ENDPOINT}>
+          <Button
+            style={{ margin: "10px" }}
+            variant="contained"
+            // onClick={() => navigate("/register")}
+          >
+            Register
+          </Button>
+        </a>
       </div>
     </div>
   );

@@ -22,6 +22,7 @@ const Login = () => {
     }
   };
 
+  // Soft validations, as Cognito User Pool has advanced ones
   const validation = () => {
     return new Promise((resolve, reject) => {
       if (email === "" && password === "") {
@@ -37,9 +38,6 @@ const Login = () => {
       } else if (password === "") {
         setPasswordErr("Password is required");
         resolve({ email: "", password: "Password is required" });
-      } else if (password.length < 6) {
-        setPasswordErr("must be 6 character");
-        resolve({ email: "", password: "must be 6 character" });
       } else {
         resolve({ email: "", password: "" });
       }
@@ -72,10 +70,15 @@ const Login = () => {
       .catch((err) => console.log(err));
   };
 
+  const goToHome = () => {
+    navigate(`/home`);
+  };
+
   return (
     <div className="login">
       <Typography variant="h3">Login TODOs app</Typography>
       <div className="form">
+        {/* <form className="form"> */}
         <div className="formfield">
           <TextField
             value={email}
@@ -95,12 +98,21 @@ const Login = () => {
             helperText={passwordErr}
           />
         </div>
-        <div className="formfield">
+        <div className="formfield d-flex justify-content-around">
           <Button type="submit" variant="contained" onClick={handleClick}>
             Login
           </Button>
+          <Button
+            type="submit"
+            variant="contained"
+            onClick={goToHome}
+            className="btn"
+          >
+            Return
+          </Button>
         </div>
         <Typography variant="body">{loginErr}</Typography>
+        {/* </form> */}
       </div>
     </div>
   );

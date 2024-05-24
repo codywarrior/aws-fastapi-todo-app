@@ -29,5 +29,5 @@ export const authenticate = (Email, Password) => {
 export const logout = () => {
   const user = userpool.getCurrentUser();
   user.signOut();
-  window.location.href = "/";
+  window.location.href = "/home";
 };
