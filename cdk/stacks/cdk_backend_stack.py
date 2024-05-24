@@ -83,50 +83,57 @@ class BackendStack(Stack):
         """
         Create Cognito User Pool for the TODO app.
         """
-        self.cognito_user_pool = aws_cognito.UserPool(
-            self,
-            "Cognito-UserPool",
-            user_pool_name=f"{self.main_resources_name}-user-pool-{self.deployment_environment}",
-            sign_in_aliases=aws_cognito.SignInAliases(email=True, username=False),
-            sign_in_case_sensitive=False,
-            self_sign_up_enabled=True,
-            auto_verify={
-                "email": True,
-            },
-            user_verification=aws_cognito.UserVerificationConfig(
-                email_subject=f"Verify your email for our {self.main_resources_name}!",
-                email_body="Thanks for signing up! Your verification code is {####}",
-                sms_message="Thanks for signing up! Your verification code is {####}",
-                email_style=aws_cognito.VerificationEmailStyle.CODE,
-            ),
-            standard_attributes=aws_cognito.StandardAttributes(
-                email=aws_cognito.StandardAttribute(required=True, mutable=False),
-                fullname=aws_cognito.StandardAttribute(required=True, mutable=False),
-                birthdate=aws_cognito.StandardAttribute(required=False, mutable=False),
-                nickname=aws_cognito.StandardAttribute(required=False, mutable=True),
-            ),
-            custom_attributes={
-                "isAdmin": aws_cognito.BooleanAttribute(mutable=False),
-                "createdAt": aws_cognito.DateTimeAttribute(),
-            },
-            password_policy=aws_cognito.PasswordPolicy(
-                min_length=6,
-                require_lowercase=False,
-                require_uppercase=False,
-                require_digits=False,
-                require_symbols=False,
-            ),
-            account_recovery=aws_cognito.AccountRecovery.EMAIL_ONLY,
-            removal_policy=RemovalPolicy.DESTROY,
-        )
+        if self.enable_cognito:
+            self.cognito_user_pool = aws_cognito.UserPool(
+                self,
+                "Cognito-UserPool",
+                user_pool_name=f"{self.main_resources_name}-user-pool-{self.deployment_environment}",
+                sign_in_aliases=aws_cognito.SignInAliases(email=True, username=False),
+                sign_in_case_sensitive=False,
+                self_sign_up_enabled=True,
+                auto_verify={
+                    "email": True,
+                },
+                user_verification=aws_cognito.UserVerificationConfig(
+                    email_subject=f"Verify your email for our {self.main_resources_name}!",
+                    email_body="Thanks for signing up! Your verification code is {####}",
+                    sms_message="Thanks for signing up! Your verification code is {####}",
+                    email_style=aws_cognito.VerificationEmailStyle.CODE,
+                ),
+                standard_attributes=aws_cognito.StandardAttributes(
+                    email=aws_cognito.StandardAttribute(required=True, mutable=False),
+                    fullname=aws_cognito.StandardAttribute(
+                        required=True, mutable=False
+                    ),
+                    birthdate=aws_cognito.StandardAttribute(
+                        required=False, mutable=False
+                    ),
+                    nickname=aws_cognito.StandardAttribute(
+                        required=False, mutable=True
+                    ),
+                ),
+                custom_attributes={
+                    "isAdmin": aws_cognito.BooleanAttribute(mutable=False),
+                    "createdAt": aws_cognito.DateTimeAttribute(),
+                },
+                password_policy=aws_cognito.PasswordPolicy(
+                    min_length=6,
+                    require_lowercase=False,
+                    require_uppercase=False,
+                    require_digits=False,
+                    require_symbols=False,
+                ),
+                account_recovery=aws_cognito.AccountRecovery.EMAIL_ONLY,
+                removal_policy=RemovalPolicy.DESTROY,
+            )
 
-        # Allows us to enable the Custom-UI for auth/validation purposes
-        self.cognito_user_pool.add_domain(
-            "Cognito-Domain",
-            cognito_domain=aws_cognito.CognitoDomainOptions(
-                domain_prefix=f"{self.main_resources_name}-{self.deployment_environment}"
-            ),
-        )
+            # Allows us to enable the Custom-UI for auth/validation purposes
+            self.cognito_user_pool.add_domain(
+                "Cognito-Domain",
+                cognito_domain=aws_cognito.CognitoDomainOptions(
+                    domain_prefix=f"{self.main_resources_name}-{self.deployment_environment}"
+                ),
+            )
 
     def create_lambda_layers(self) -> None:
         """
