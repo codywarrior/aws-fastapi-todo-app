@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ####################################################################################################
-# STEPS EXECUTED TO DEPLOY THE FRONTEND PROJECT
+# STEPS EXECUTED TO DEPLOY THE FRONTEND PROJECT (SIMPLIFIED WITHOUT POETRY TOOL)
 ####################################################################################################
 
 # IMPORTANT: MANUAL STEPS ONLY ONCE!!!
@@ -18,10 +18,8 @@ npm run build
 # Return to root directoy
 cd ..
 
-# Install python dependencies with Poetry
-pip install poetry
-poetry shell
-poetry install
+# Install Python dependencies with PIP (other tools like Poetry can be used)
+pip install -r requirements.txt
 
 # Configure deployment environment
 export AWS_DEFAULT_REGION=us-east-1

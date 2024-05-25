@@ -1,13 +1,11 @@
 #!/bin/bash
 
 ####################################################################################################
-# STEPS EXECUTED TO DEPLOY THE BACKEND PROJECT
+# STEPS EXECUTED TO DEPLOY THE BACKEND PROJECT (SIMPLIFIED WITHOUT POETRY TOOL)
 ####################################################################################################
 
-# Install Python dependencies with Poetry
-pip install poetry
-poetry shell
-poetry install
+# Install Python dependencies with PIP (other tools like Poetry can be used)
+pip install -r requirements.txt
 
 # Configure deployment environment
 export AWS_DEFAULT_REGION=us-east-1
