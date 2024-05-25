@@ -244,6 +244,11 @@ class BackendStack(Stack):
                 description=f"REST API for {self.main_resources_name} in {self.deployment_environment} environment",
                 metrics_enabled=True,
             ),
+            default_cors_preflight_options=aws_apigw.CorsOptions(
+                allow_origins=aws_apigw.Cors.ALL_ORIGINS,
+                allow_methods=aws_apigw.Cors.ALL_METHODS,
+                allow_headers=["*"],
+            ),
             endpoint_types=[aws_apigw.EndpointType.REGIONAL],
             cloud_watch_role=False,
             proxy=False,  # Proxy disabled to have more control
