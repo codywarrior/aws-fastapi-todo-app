@@ -13,6 +13,7 @@
 cd frontend
 
 # Build the frontend distribution
+npm install .
 npm run build
 
 # Return to root directoy
