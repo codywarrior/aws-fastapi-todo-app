@@ -1,7 +1,16 @@
 #root {
-  margin: 0 auto;
-  padding: 2rem;
+  margin: auto;
+  padding: rem;
   text-align: center;
+}
+
+.main-box {
+  padding-top: 200px;
+  /* margin: 0; */
+  /* display: flex; */
+  place-items: center;
+  min-width: 920px;
+  color: white;
 }
 
 .logo {
@@ -24,4 +33,8 @@
   background-color: #1a1a1a;
   box-shadow: 0 0 0.5em 0.3em #000000aa;
   transition: transform 300ms;
+}
+
+.list-group {
+  width: 100%;
 }

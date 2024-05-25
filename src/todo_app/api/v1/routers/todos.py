@@ -29,6 +29,7 @@ async def read_all_todos(
     correlation_id: Annotated[str | None, Header()] = uuid4(),
 ):
     try:
+        user_email = user_email.replace(" ", "+")
         logger.append_keys(correlation_id=correlation_id, user_email=user_email)
         logger.info("Starting todos handler for read_all_todos()")
 
@@ -49,6 +50,7 @@ async def read_todo_item(
     correlation_id: Annotated[str | None, Header()] = uuid4(),
 ):
     try:
+        user_email = user_email.replace(" ", "+")
         logger.append_keys(correlation_id=correlation_id, user_email=user_email)
         logger.info("Starting todos handler for read_todo_item()")
 
@@ -69,7 +71,7 @@ async def create_todo_item(
 ):
     try:
         # Inject additional keys to the logger for cross-referencing logs
-        user_email = todo_details.get("user_email")
+        user_email = todo_details.get("user_email").replace(" ", "+")
         logger.append_keys(correlation_id=correlation_id, user_email=user_email)
 
         # Validate payload with JSON-Schema
@@ -101,6 +103,7 @@ async def patch_todo_item(
     correlation_id: Annotated[str | None, Header()] = uuid4(),
 ):
     try:
+        user_email = user_email.replace(" ", "+")
         logger.append_keys(correlation_id=correlation_id, user_email=user_email)
         logger.info("Starting todos handler for patch_todo_item()")
 
@@ -133,6 +136,7 @@ async def delete_todo_item(
     correlation_id: Annotated[str | None, Header()] = uuid4(),
 ):
     try:
+        user_email = user_email.replace(" ", "+")
         logger.append_keys(correlation_id=correlation_id, user_email=user_email)
         logger.info("Starting todos handler for delete_todo_item()")
 

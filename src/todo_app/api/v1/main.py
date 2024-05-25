@@ -8,6 +8,8 @@ import os
 # External imports
 from mangum import Mangum
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
 
 # Own imports
 from todo_app.api.v1.routers import (
@@ -27,6 +29,15 @@ app = FastAPI(
     openapi_url="/api/v1/docs/openapi.json",
 )
 
+# Required to allow CORS for the API (for local development and external frontends)
+origins = ["*"]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(todos.router, prefix="/api/v1")
 
