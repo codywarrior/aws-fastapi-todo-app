@@ -58,9 +58,14 @@ class FrontendStack(Stack):
             website_index_document="index.html",
             website_error_document="index.html",
             public_read_access=True,
-            block_public_access=aws_s3.BlockPublicAccess.BLOCK_ACLS,
             removal_policy=RemovalPolicy.DESTROY,
             auto_delete_objects=True,
+            block_public_access=aws_s3.BlockPublicAccess(
+                block_public_policy=False,
+                restrict_public_buckets=False,
+                ignore_public_acls=False,
+                block_public_acls=False,
+            ),
         )
 
     def upload_objects_to_s3(self):
