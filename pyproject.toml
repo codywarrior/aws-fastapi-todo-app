@@ -19,19 +19,16 @@ coverage = "^7.4.0"
 black = "^23.12.1"
 boto3 = "^1.34.14"
 moto = "^4.2.13"
-aws-lambda-powertools = {version = "^2.31.0"}
+aws-lambda-powertools = { version = "^2.31.0" }
 python-ulid = "^2.2.0"
 jsonschema = "^4.20.0"
-fastapi = {extras = ["all"], version = "^0.109.0"}
+fastapi = { extras = ["all"], version = "^0.109.0" }
 mangum = "^0.17.0"
 pydantic = "^2.5.3"
 
 [tool.pytest.ini_options]
 minversion = "7.0"
-pythonpath = [
-    "cdk",
-    "src",
-]
+pythonpath = ["backend", "src"]
 
 [build-system]
 requires = ["poetry-core"]
@@ -48,10 +45,8 @@ _coverage_html = "coverage html"
 
 [tool.coverage.run]
 branch = true
-source = ["src", "cdk"]
-omit = [
-    "**/__init__.py"
-]
+source = ["backend", "cdk"]
+omit = ["**/__init__.py"]
 
 [tool.coverage.report]
 show_missing = false

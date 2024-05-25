@@ -12,6 +12,7 @@ from aws_cdk import (
     aws_dynamodb,
     aws_lambda,
     aws_apigateway as aws_apigw,
+    CfnOutput,
 )
 from constructs import Construct
 
@@ -57,6 +58,9 @@ class BackendStack(Stack):
         self.configure_cognito_app_client()  # --> Only if Cognito is enabled
         self.configure_rest_api_simple()  # --> Simple example usage of REST-API (proxy)
         # self.configure_rest_api_advanced()  # --> Advanced example usage of REST-API (paths)
+
+        # Create CloudFormation outputs
+        self.generate_cloudformation_outputs()
 
     def create_dynamodb_table(self):
         """
@@ -128,7 +132,7 @@ class BackendStack(Stack):
             )
 
             # Allows us to enable the Custom-UI for auth/validation purposes
-            self.cognito_user_pool.add_domain(
+            self.user_pool_domain = self.cognito_user_pool.add_domain(
                 "Cognito-Domain",
                 cognito_domain=aws_cognito.CognitoDomainOptions(
                     domain_prefix=f"{self.main_resources_name}-{self.deployment_environment}"
@@ -169,7 +173,7 @@ class BackendStack(Stack):
         # ! Note--> we must obtain parent dirs to create path (that"s why there is "os.path.dirname()")
         PATH_TO_LAMBDA_FUNCTION_FOLDER = os.path.join(
             os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
-            "src",
+            "backend",
         )
 
         # Lambda Function for managing CRUD operations on "TODOs"
@@ -271,6 +275,7 @@ class BackendStack(Stack):
         Method to configure the Cognito App Client for the User Pool.
         """
         if self.enable_cognito:
+            self.redirect_uri = f"https://{self.api.rest_api_id}.execute-api.{self.region}.amazonaws.com/{self.deployment_environment}/api/v1/docs"
             self.app_client = self.cognito_user_pool.add_client(
                 "Cognito-AppClient",
                 user_pool_client_name=f"{self.main_resources_name}-app-client-{self.deployment_environment}",
@@ -285,7 +290,7 @@ class BackendStack(Stack):
                     ],
                     callback_urls=[
                         # Note: when using frontend, replace to frontend home page
-                        f"https://{self.api.rest_api_id}.execute-api.{self.region}.amazonaws.com/prod/api/v1/docs"
+                        self.redirect_uri,
                     ],
                 ),
                 id_token_validity=Duration.hours(8),
@@ -368,3 +373,48 @@ class BackendStack(Stack):
             default_integration=api_lambda_integration_todos,
             # default_method_options=self.api_method_options_private,
         )
+
+    def generate_cloudformation_outputs(self) -> None:
+        """
+        Method to add the relevant CloudFormation outputs.
+        """
+
+        CfnOutput(
+            self,
+            "DeploymentEnvironment",
+            value=self.app_config["deployment_environment"],
+            description="Deployment environment",
+        )
+
+        CfnOutput(
+            self,
+            "BACKEND_API_URL",
+            value=f"https://{self.api.rest_api_id}.execute-api.{self.region}.amazonaws.com/{self.deployment_environment}/api/v1",
+            description="BACKEND_API_URL",
+        )
+
+        if self.enable_cognito:
+            CfnOutput(
+                self,
+                "USER_POOL_ID",
+                value=self.cognito_user_pool.user_pool_id,
+                description="USER_POOL_ID",
+            )
+
+            CfnOutput(
+                self,
+                "CLIENT_ID",
+                value=self.app_client.user_pool_client_id,
+                description="CLIENT_ID",
+            )
+
+            CfnOutput(
+                self,
+                "COGNITO_HOSTED_UI_ENDPOINT",
+                value=self.user_pool_domain.sign_in_url(
+                    self.app_client,
+                    redirect_uri=self.redirect_uri,
+                    sign_in_path="/oauth2/authorize",
+                ),
+                description="COGNITO_HOSTED_UI_ENDPOINT",
+            )

@@ -3,11 +3,12 @@ import { useNavigate } from "react-router-dom";
 import appLogo1 from "../assets/todo-app-logo-1.png";
 import { useEffect } from "react";
 import userpool from "./userpool";
+import globalPublicVars from "../GLOBAL_VARS";
 
 const Home = () => {
   const navigate = useNavigate();
-  const COGNITO_HOSTED_UI_ENDPOINT = import.meta.env
-    .VITE_COGNITO_HOSTED_UI_ENDPOINT;
+  const COGNITO_HOSTED_UI_ENDPOINT =
+    globalPublicVars.VITE_COGNITO_HOSTED_UI_ENDPOINT;
 
   useEffect(() => {
     let user = userpool.getCurrentUser();

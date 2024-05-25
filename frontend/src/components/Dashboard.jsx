@@ -4,8 +4,13 @@ import { useEffect, useState } from "react";
 import userpool from "./userpool";
 import { useNavigate } from "react-router-dom";
 import * as jose from "jose";
+import { v4 as uuidv4 } from "uuid";
+import GLOBAL_VARS from "../GLOBAL_VARS";
 
 function Dashboard() {
+  // Set global vars
+  const VITE_BACKEND_API_URL = GLOBAL_VARS.VITE_BACKEND_API_URL;
+
   const navigate = useNavigate();
   const [userEmail, setUserEmail] = useState("");
   const [todoItems, setTodoItems] = useState([]);
@@ -38,7 +43,7 @@ function Dashboard() {
 
       // Fetch TODO items
       const myHeaders = new Headers();
-      let correlationId = `santi-${crypto.randomUUID()}`;
+      let correlationId = `santi-${uuidv4()}`;
       myHeaders.append("Correlation-ID", correlationId);
       myHeaders.append("Authorization", idToken);
 
@@ -49,8 +54,7 @@ function Dashboard() {
       };
 
       let getTodosPath =
-        import.meta.env.VITE_BACKEND_API_URL +
-        `/todos?user_email=${userEmailText}`;
+        VITE_BACKEND_API_URL + `/todos?user_email=${userEmailText}`;
       console.log(`getTodosPath is: ${getTodosPath}`);
 
       // Fetch the TODO items
@@ -76,8 +80,7 @@ function Dashboard() {
     console.log(`Starting deleteItem with sk: ${sk}`);
     let todoId = sk.replace("TODO#", "");
     let deleteTodoPath =
-      import.meta.env.VITE_BACKEND_API_URL +
-      `/todos/${todoId}?user_email=${userEmail}`;
+      VITE_BACKEND_API_URL + `/todos/${todoId}?user_email=${userEmail}`;
     console.log(`deleteTodoPath is: ${deleteTodoPath}`);
 
     let user = userpool.getCurrentUser();
@@ -107,7 +110,7 @@ function Dashboard() {
     try {
       // Fetch TODO items
       const myHeaders = new Headers();
-      let correlationId = `santi-${crypto.randomUUID()}`;
+      let correlationId = `santi-${uuidv4()}`;
       myHeaders.append("Correlation-ID", correlationId);
       myHeaders.append("Authorization", idToken);
 
@@ -161,11 +164,11 @@ function Dashboard() {
 
     try {
       // Create TODO items
-      let createTodoPath = import.meta.env.VITE_BACKEND_API_URL + `/todos`;
+      let createTodoPath = VITE_BACKEND_API_URL + `/todos`;
       console.log(`createTodoPath is: ${createTodoPath}`);
 
       const myHeaders = new Headers();
-      let correlationId = `santi-${crypto.randomUUID()}`;
+      let correlationId = `santi-${uuidv4()}`;
       myHeaders.append("Correlation-ID", correlationId);
       myHeaders.append("Authorization", idToken);
       myHeaders.append("Content-Type", "application/json");
@@ -187,6 +190,9 @@ function Dashboard() {
       }
       const newItem = await response.json();
       setTodoItems([...todoItems, newItem]);
+      // Remove existing text from the input field
+      // Clear the input field
+      document.getElementById("newItem").value = "";
     } catch (error) {
       console.error("Failed to create item:", error);
     }
