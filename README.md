@@ -1,8 +1,8 @@
 # 🎺 AWS-FASTAPI-TODO-APP 🎺
 
-Amazing TODO app example for Fullstack Application deployed on AWS (frontend + backend with custom authN/authZ).
+Advanced TODO App: A Fullstack AWS-Deployed Solution with Decoupled Architecture and Multi-User Capabilities
 
-## Video with recording of this demo
+## Video Recording 🎥
 
 - [YouTube Recording: Advanced APIs on AWS with FastAPI](https://youtu.be/j7REV2ZO_Ec)
 
@@ -31,7 +31,10 @@ Here are some cool images when hosting the live event for the [AWS User Group Me
 
 <img src="assets/aws_fastapi_todo_app.png" width=90%> <br>
 
-This project was created to show how to easily deploy a REST-API on AWS by leveraging one of the fastest Python frameworks in the market, FastAPI, while still gaining the power or AWS serverless tools, such as API-Gateway, Lambda Functions, DynamoDB, Cognito and more!
+This project was created to show how to easily deploy a Fullstack production-grade application on AWS by:
+
+- Backend: leveraging one of the fastest Python frameworks in the market, FastAPI, while still gaining the power or AWS serverless tools, such as API-Gateway, Lambda Functions, DynamoDB, Cognito and more!
+- Frontend: using S3 Bucket hosting to enable an static-website user interface on top of React. (Note: for production grade UIs, a DNS+CloudFront+ACM is recommended to be added).
 
 The information of this repository is based on different public online resources, so feel free to use it as a guide for your future projects!. <br>
 
@@ -39,7 +42,7 @@ The information of this repository is based on different public online resources
 
 All projects are well commented (even over-commented sometimes for clarity). <br>
 
-The necessary commands to deploy/destroy the solution can be found at:
+The required commands to deploy/destroy the solution can be found at:
 
 - CDK-Deployment: [`cdk/important_commands.sh`](cdk/important_commands.sh)
 - Terraform-Deployment: [`terraform/important_commands.sh`](terraform/important_commands.sh)
