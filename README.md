@@ -1,12 +1,31 @@
 # 🎺 AWS-FASTAPI-TODO-APP 🎺
 
+Amazing TODO app example for Fullstack Application deployed on AWS (frontend + backend with custom authN/authZ).
+
+## Video with recording of this demo
+
+- [YouTube Recording: Advanced APIs on AWS with FastAPI](https://youtu.be/j7REV2ZO_Ec)
+
+## Event Pictures 💥
+
+Here are some cool images when hosting the live event for the [AWS User Group Medellin](https://www.meetup.com/aws-medellin/):
+
+<img src="assets/photo_01_presentation.png" width=50%><img src="assets/photo_02_presentation.png" width=50%>
+<br>
+<img src="assets/photo_03_application.png" width=50%><img src="assets/photo_04_application.png" width=50%>
+<br>
+
 ## Overview 🔮
 
-This is a TODO app example for a REST-API deployed on AWS with the following specifications:
-
+- Backend Source Code with [AWS Lambda Functions](https://aws.amazon.com/lambda/) built with [Python Runtime](https://www.python.org).
+- Backend API Framework with [FastAPI](https://fastapi.tiangolo.com).
+- [DynamoDB](https://aws.amazon.com/dynamodb/) used as the database (NoSQL) approach with [Single Table Design](https://aws.amazon.com/blogs/compute/creating-a-single-table-design-with-amazon-dynamodb/).
+- Frontend Source Code with [React + Vite](https://vitejs.dev).
+- Frontend deployed as a static website on an [S3 Bucket](https://aws.amazon.com/s3/).
+- Authentication and Authorization with multiple options:
+  - API Keys.
+  - Cognito User Pool.
 - Infrastructure as Code with [AWS CDK-Python](https://aws.amazon.com/cdk/) or [Terraform](https://www.terraform.io)
-- Source Code with [AWS Lambda Functions](https://aws.amazon.com/lambda/) built with [Python Runtime](https://www.python.org)
-- API Framework with [FastAPI](https://fastapi.tiangolo.com)
 - Tests with [PyTest Framework](https://docs.pytest.org/)
 - Dependencies and Environments managed with [Python Poetry](https://python-poetry.org)
 
